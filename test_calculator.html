@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="css/style.css">
+    <style type="text/css">
+    /* Basic reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  
+  /* Better text styling */
+  font: bold 14px Arial, sans-serif;
+}
+
+/* Finally adding some IE9 fallbacks for gradients to finish things up */
+
+/* A nice BG gradient */
+html {
+  height: 100%;
+  background: white;
+  background: radial-gradient(circle, #fff 20%, #ccc);
+  background-size: cover;
+}
+
+/* Using box shadows to create 3D effects */
+#calculator {
+  width: 325px;
+  height: auto;
+  
+  margin: 100px auto;
+  padding: 20px 20px 9px;
+  
+  background: #9dd2ea;
+  background: linear-gradient(#9dd2ea, #8bceec);
+  border-radius: 3px;
+  box-shadow: 0px 4px #009de4, 0px 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Top portion */
+.top span.clear {
+  float: left;
+}
+
+/* Inset shadow on the screen to create indent */
+.top .screen {
+  height: 40px;
+  width: 212px;
+  
+  float: right;
+  
+  padding: 0 10px;
+  
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  box-shadow: inset 0px 4px rgba(0, 0, 0, 0.2);
+  
+  /* Typography */
+  font-size: 17px;
+  line-height: 40px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  text-align: right;
+  letter-spacing: 1px;
+}
+
+/* Clear floats */
+.keys, .top {overflow: hidden;}
+
+/* Applying same to the keys */
+.keys span, .top span.clear {
+  float: left;
+  position: relative;
+  top: 0;
+  
+  cursor: pointer;
+  
+  width: 66px;
+  height: 36px;
+  
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
+  
+  margin: 0 7px 11px 0;
+  
+  color: #888;
+  line-height: 36px;
+  text-align: center;
+  
+  /* prevent selection of text inside keys */
+  user-select: none;
+  
+  /* Smoothing out hover and active states using css3 transitions */
+  transition: all 0.2s ease;
+}
+
+/* Remove right margins from operator keys */
+/* style different type of keys (operators/evaluate/clear) differently */
+.keys span.operator {
+  background: #FFF0F5;
+  margin-right: 0;
+}
+
+.keys span.eval {
+  background: #f1ff92;
+  box-shadow: 0px 4px #9da853;
+  color: #888e5f;
+}
+
+.top span.clear {
+  background: #ff9fa8;
+  box-shadow: 0px 4px #ff7c87;
+  color: white;
+}
+
+/* Some hover effects */
+.keys span:hover {
+  background: #9c89f6;
+  box-shadow: 0px 4px #6b54d3;
+  color: white;
+}
+
+.keys span.eval:hover {
+  background: #abb850;
+  box-shadow: 0px 4px #717a33;
+  color: #ffffff;
+}
+
+.top span.clear:hover {
+  background: #f68991;
+  box-shadow: 0px 4px #d3545d;
+  color: white;
+}
+
+/* Simulating "pressed" effect on active state of the keys by removing the box-shadow and moving the keys down a bit */
+.keys span:active {
+  box-shadow: 0px 0px #6b54d3;
+  top: 4px;
+}
+
+.keys span.eval:active {
+  box-shadow: 0px 0px #717a33;
+  top: 4px;
+}
+
+.top span.clear:active {
+  top: 4px;
+  box-shadow: 0px 0px #d3545d;
+}
+
+    </style>
+  </head>
+
+  <body>
+
+    <!-- calculator -->
+    <div id="calculator">
+      <!-- Screen and clear key -->
+      <div class="top">
+        <span id="clearID" class="clear">C</span>
+        <div id="screenID" class="screen"></div>
+      </div>
+  
+      <div class="keys">
+        <!-- operators and other keys -->
+        <span class="number">7</span>
+        <span class="number">8</span>
+        <span class="number">9</span>
+        <span class="operator">+</span>
+        <span class="number">4</span>
+        <span class="number">5</span>
+        <span class="number">6</span>
+        <span class="operator">-</span>
+        <span class="number">1</span>
+        <span class="number">2</span>
+        <span class="number">3</span>
+        <span class="operator">÷</span>
+        <span class="number">0</span>
+        <span id="dotID" class="dot">.</span>
+        <span id="calcID" class="eval">=</span>
+        <span class="operator">x</span>
+      </div>
+    </div>
+
+  <script type="text/javascript">
+     var calculatorContainerID = "calculator",
+          clearButtonID = "clearID",
+          screenID = "screenID",
+          dotButtonID = "dotID",
+          calculationButtonID = "calcID",
+          numberButtonClass = "number",
+          operatorButtonClass = "operator",
+          calculatorContainer = document.getElementById(calculatorContainerID),
+          screenContainer = calculatorContainer.querySelector("#" + screenID),
+          clearButton = calculatorContainer.querySelector("#" + clearButtonID),
+          dotButton = calculatorContainer.querySelector("#" + dotButtonID),
+          calculationButton = calculatorContainer.querySelector("#" + calculationButtonID),
+          arrNumberButtons = calculatorContainer.getElementsByClassName(numberButtonClass),
+          arrOperatorButtons = calculatorContainer.getElementsByClassName(operatorButtonClass),
+          val = "",
+          op = "",
+          arrValues = [];
+
+      for ( var i = 0, l = arrNumberButtons.length; i < l; i++ ) {
+        arrNumberButtons[i].addEventListener("click", addNumber);
+      }
+
+      for ( var i = 0, l = arrOperatorButtons.length; i < l; i++ ) {
+        arrOperatorButtons[i].addEventListener("click", operarorHandler);
+      }
+      
+      clearButton.addEventListener("click", clearScreen);
+      dotButton.addEventListener("click", addDot);
+      calculationButton.addEventListener("click", executeCalc);
+
+      function executeCalc() {
+        console.log(arrValues);
+        val = "";
+        // screenContainer.innerHTML = val;
+      }
+
+      function clearScreen() {
+        val = "";
+        screenContainer.innerHTML = val;
+      }
+
+      function addDot() {
+        if (val.indexOf(".") > 0) { alert("Number can't contain two dots"); return ; }
+        if (val == "") { screenContainer.innerHTML = screenContainer.innerHTML + "0."; val += "0."; return; }
+        if (parseInt(val)) { screenContainer.innerHTML = screenContainer.innerHTML + "."; val +="."; }
+
+        //screenContainer.innerHTML = val;
+      }
+
+      function operarorHandler() {
+        if ( !(screenContainer.innerHTML) || op == this.innerHTML || screenContainer.innerHTML[screenContainer.innerHTML.length - 1] == "." ) return;
+        arrValues.push(val);
+        val = "";
+        if (screenContainer.innerHTML[screenContainer.innerHTML.length - 1] == op) {
+          screenContainer.innerHTML = screenContainer.innerHTML.slice(0, -1) + this.innerHTML;
+          op = this.innerHTML;
+          arrValues.push(op);
+          return;
+        };
+        op = this.innerHTML;
+        arrValues.push(op);
+
+        screenContainer.innerHTML = screenContainer.innerHTML + op;
+
+      }
+
+      function addNumber() {
+        op = "";
+        val += this.innerHTML;
+        screenContainer.innerHTML = screenContainer.innerHTML + this.innerHTML;
+      }
+    </script>
+    <!-- calculator -->
+<!-- 
+  Find everything within calculatorID to add efficiency
+  Make initialization and module to add possibility to use else where
+  init (calculatorContainerID, clearButtonID, numberButtonClass, dotButtonID, operatorButton)
+  Module will have its properties
+ 
+
+
+
+  all numbers -> val += value
+  if "." is pressed and val == "" -> val = "0."
+  if val.indexOf(".") alert error
+    val += string, (!isNaN(parseInt(val))) ?   -> if operator - arr += val, val =  "" 
+
+-->
+
+  </body>
+</html>
+
+
+
+ <!-- var findChild = function(elID, childSelector){
+      if (typeof childSelector == "string"){
+
+        if (childSelector[0] == "#") {
+          var childrenArr = elID.children;
+          console.log(childrenArr);
+          for (var i = 0, l = childrenArr.length; i < l; i++)
+          {
+            console.log(childrenArr[i].getAttribute("id"));
+            if (childrenArr[i].getAttribute("id") == childSelector.slice(1)) {
+            // return childrenArr[i];
+            }
+          }
+        }
+
+        if (childSelector[0] == ".") { 
+          return elID.getElementsByClassName(childSelector.slice(1)); 
+        } 
+        else { return elID.getElementsByTagName(childSelector); }
+      } 
+      else { console.log(childSelector + " is not a string"); }
+       
+  };-->
